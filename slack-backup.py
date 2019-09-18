@@ -35,6 +35,7 @@ def read_all_messages(client, func_name, channel, oldest=None, latest=None):
             messages.extend(r['messages'])
     return messages
 
+
 def read_all(client, kind, func_name, get_display, find=None):
     func = getattr(client, func_name)
 
@@ -53,11 +54,14 @@ def read_all(client, kind, func_name, get_display, find=None):
             found = raw['id']
     return list, found
 
+
 def read_all_users(client, find_user=None):
     return read_all(client, 'members', 'users_list', lambda u: u['profile']['display_name'], find_user)
 
+
 def read_all_channels(client, find_channel=None):
     return read_all(client, 'channels', 'channels_list', lambda c: c['name'], find_channel)
+
 
 def parse_message(message, files_path, token):
     what = message['text']
@@ -90,10 +94,12 @@ def parse_message(message, files_path, token):
 
     return what
 
+
 def assert_arg(find, found, label):
     if find is not None and found is None:
         print(f'error: could not find {label} {find}')
         sys.exit(1)
+
 
 def valid_date(s):
     try:
@@ -102,12 +108,14 @@ def valid_date(s):
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
 
+
 def prompt(message):
     try:
         result = input('{} [y/N] '.format(message))
         return result.lower() == 'y'
     except (EOFError, KeyboardInterrupt):
         return False
+
 
 def main():
     token = os.environ['SLACK_API_TOKEN']
@@ -178,10 +186,11 @@ def main():
                 if 'files' in message:
                     for file in message['files']:
                         client.file_delete(file=file['id'])
-                        time.sleep(1) # Rate limit Tier 3 (50+/min)
+                        time.sleep(1)  # Rate limit Tier 3 (50+/min)
             except slack.errors.SlackApiError as e:
                 print(e)
-            time.sleep(1) # Rate limit Tier 3 (50+/min)
+            time.sleep(1)  # Rate limit Tier 3 (50+/min)
+
 
 if __name__ == "__main__":
     main()

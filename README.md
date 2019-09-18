@@ -1,4 +1,4 @@
-# slack-channel-backup
+# slack-channel-backup [![Build Status](https://travis-ci.org/LouisBrunner/slack-channel-backup.svg?branch=master)](https://travis-ci.org/LouisBrunner/slack-channel-backup)
 
 This tool allows you to backup (and potentially delete) the content of a Slack channel (including files).
 
