@@ -3,6 +3,7 @@
 import os
 import argparse
 import sys
+import time
 from datetime import datetime
 
 
@@ -101,6 +102,13 @@ def valid_date(s):
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
 
+def prompt(message):
+    try:
+        result = input('{} [y/N] '.format(message))
+        return result.lower() == 'y'
+    except (EOFError, KeyboardInterrupt):
+        return False
+
 def main():
     token = os.environ['SLACK_API_TOKEN']
     default_folder = f'slack-backup-{datetime.now().strftime("%Y-%m-%dT%H-%M-%S")}'
@@ -117,6 +125,7 @@ def main():
 
     client = slack.WebClient(token=token)
 
+    print('Retrieving users...')
     find_user = None
     find_channel = None
     prefix = args.channel[0]
@@ -138,20 +147,41 @@ def main():
     if args.to is not None:
         read_args['latest'] = str(args.to.timestamp())
 
+    print('Retrieving messages...')
     os.makedirs(root, exist_ok=True)
     files_path = os.path.join(root, 'files')
     messages = []
+    channel = None
     if found_user is not None:
         conv = client.conversations_open(users=[found_user])
-        messages = read_all_messages(client, 'im_history', conv['channel']['id'], **read_args)
+        channel = conv['channel']['id']
+        messages = read_all_messages(client, 'im_history', channel, **read_args)
     else:
-        messages = read_all_messages(client, 'channel_history', found_channel, **read_args)
+        channel = found_channel
+        messages = read_all_messages(client, 'channel_history', channel, **read_args)
+
+    print('Processing messages...')
     with open(os.path.join(root, 'conversation.txt'), 'w') as f:
         for message in tqdm(reversed(messages), total=len(messages)):
             when = datetime.utcfromtimestamp(float(message['ts'])).strftime('%Y-%m-%d %H:%M:%S')
             who = users.get(message['user'], '!Unknown!')
             what = parse_message(message, files_path, token)
             f.write(f'[{when}] {who}: {what}\n')
+
+    if args.delete:
+        if not prompt('Are you sure you want to delete all these messages? (CANNOT BE UNDONE!)'):
+            sys.exit(1)
+        print('Deleting messages...')
+        for message in tqdm(messages, total=len(messages)):
+            try:
+                client.chat_delete(channel=channel, ts=message['ts'])
+                if 'files' in message:
+                    for file in message['files']:
+                        client.file_delete(file=file['id'])
+                        time.sleep(1) # Rate limit Tier 3 (50+/min)
+            except slack.errors.SlackApiError as e:
+                print(e)
+            time.sleep(1) # Rate limit Tier 3 (50+/min)
 
 if __name__ == "__main__":
     main()

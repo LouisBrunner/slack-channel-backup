@@ -36,7 +36,8 @@ optional arguments:
 
 You will need to [create a Slack app](https://api.slack.com/apps) with the following permissions:
 
- - In every case: `files:read`, `users:read` (if deleting: `files:write:user`)
- - When using public channels: `channels:history`, `channels:read` (if deleting: `channels:write`)
- - When using private channels: `groups:history`, `groups:read` (if deleting: `groups:write`)
- - When using Direct Messages: `im:history`, `im:read` (if deleting: `im:write`)
+ - Always: `files:read`, `users:read`
+ - When using public channels: `channels:history`, `channels:read`
+ - When using private channels: `groups:history`, `groups:read`
+ - When using Direct Messages: `im:history`, `im:read`
+ - When deleting messages: `chat:write:user`, `files:write:user`
