@@ -180,12 +180,15 @@ def main():
         if not prompt('Are you sure you want to delete all these messages? (CANNOT BE UNDONE!)'):
             sys.exit(1)
         print('Deleting messages...')
+        user = client.auth_test()['user_id']
         for message in tqdm(messages, total=len(messages)):
+            if message['user'] != user:
+                continue
             try:
                 client.chat_delete(channel=channel, ts=message['ts'])
                 if 'files' in message:
                     for file in message['files']:
-                        client.file_delete(file=file['id'])
+                        client.files_delete(file=file['id'])
                         time.sleep(1)  # Rate limit Tier 3 (50+/min)
             except slack.errors.SlackApiError as e:
                 print(e)
