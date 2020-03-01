@@ -166,7 +166,7 @@ def main():
         messages = read_all_messages(client, 'im_history', channel, **read_args)
     else:
         channel = found_channel
-        messages = read_all_messages(client, 'channel_history', channel, **read_args)
+        messages = read_all_messages(client, 'channels_history', channel, **read_args)
 
     print('Processing messages...')
     with open(os.path.join(root, 'conversation.txt'), 'w') as f:

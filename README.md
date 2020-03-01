@@ -41,3 +41,7 @@ You will need to [create a Slack app](https://api.slack.com/apps) with the follo
  - When using private channels: `groups:history`, `groups:read`
  - When using Direct Messages: `im:history`, `im:read`
  - When deleting messages: `chat:write:user`, `files:write:user`
+
+## Disclaimer
+
+This project is using the old Slack API for channels and direct messages instead of new conversations one (https://api.slack.com/changelog/2020-01-deprecating-antecedents-to-the-conversations-api).
