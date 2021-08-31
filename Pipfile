@@ -8,8 +8,9 @@ flake8 = "*"
 
 [packages]
 tqdm = "*"
-slackclient = "*"
+slackclient = "==2.1.0"
 requests = "*"
+typing_extensions = "*"
 
 [requires]
 python_version = "3.7"
